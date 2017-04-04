@@ -1,0 +1,13 @@
+#!/bin/sh
+
+access_token=$(< .access-token)
+base_url=https://www.strava.com/api/v3
+
+jq_filter='
+def format_date: . | gsub("Z"; "") | gsub("T"; " ");
+
+.[] | [.id, .name, .distance, (.start_date_local | format_date) ] | map(tostring) | @tsv
+'
+
+curl -s $base_url/athlete/activities -H "Authorization: Bearer $access_token" | \
+  jq -r "$jq_filter"
