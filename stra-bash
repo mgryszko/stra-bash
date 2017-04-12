@@ -1,13 +1,82 @@
-#!/bin/sh
+#!/bin/bash
 
-access_token=$(< .access-token)
-base_url=https://www.strava.com/api/v3
+BASE_URL=https://www.strava.com/api/v3
 
-jq_filter='
-def format_date: . | gsub("Z"; "") | gsub("T"; " ");
+main() {
+  local activities=$(get_activities)
+  local name_width=$(max_name_length "$activities")
+  format_activities "$activities" $name_width
+}
 
-.[] | [.id, .name, .distance, (.start_date_local | format_date) ] | map(tostring) | @tsv
+get_activities() {
+  local access_token=$(< .access-token)
+  local jq_filter='.[] | [.id, .start_date_local, .name, .distance] | map(tostring) | @tsv'
+
+  echo "$(curl -s $BASE_URL/athlete/activities -H "Authorization: Bearer $access_token" | \
+    jq -r "$jq_filter")"
+}
+
+max_name_length() {
+  local activities=$1 
+  echo "$activities" | awk '
+BEGIN { FS = "\t" }
+{ 
+  name = $3 
+  if (length(name) > max) { max = length(name) } 
+}
+END { print max }
 '
+}
 
-curl -s $base_url/athlete/activities -H "Authorization: Bearer $access_token" | \
-  jq -r "$jq_filter"
+format_activities() {
+  local actitivies=$1
+  local name_width=$2
+  echo "$activities" | awk -v name_width=$name_width '
+BEGIN { 
+  FS = "\t" 
+
+  id_width = 9
+  start_date_width = 19
+  distance_width = 6
+
+  print_header()
+}
+{ 
+  id = $1
+  start_date = format_date($2)
+  name = $3
+  distance_km = to_km($4)
+  
+  printf "%s %s %-*s %*.2f\n", id, start_date, name_width, name, distance_width, distance_km
+}
+
+function print_header() {
+  printf "%-*s %-*s %-*s %-*s\n", id_width, "id", start_date_width, "start date", name_width, "name", distance_width, "km"
+  repeat("-", id_width)
+  printf " "
+  repeat("-", start_date_width)
+  printf " "
+  repeat("-", name_width)
+  printf " "
+  repeat("-", distance_width)
+  printf "\n" 
+}
+
+function repeat(str, times) {
+  for (i = 0; i < times; i++) printf str 
+}
+
+function format_date(date) {
+  sub(/T/, " ", date)
+  sub(/Z/, "", date) 
+  return date
+}
+
+function to_km(distance) {
+  return distance / 1000
+}
+'
+}
+
+main $*
+
