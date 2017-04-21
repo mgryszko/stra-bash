@@ -2,17 +2,31 @@
 
 BASE_URL=https://www.strava.com/api/v3
 
+page=1
+
 main() {
+  parse_args $*
+
   local activities=$(get_activities)
   local name_width=$(max_name_length "$activities")
   format_activities "$activities" $name_width
+}
+
+parse_args() {
+  while getopts ":p:" opt; do
+    case $opt in
+      p) page="$OPTARG" ;;
+      \?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
+      :) echo "Option -$OPTARG requires an argument" >&2; exit 1 ;;
+    esac
+  done
 }
 
 get_activities() {
   local access_token=$(< .access-token)
   local jq_filter='.[] | [.id, .start_date_local, .name, .distance] | map(tostring) | @tsv'
 
-  echo "$(curl -s $BASE_URL/athlete/activities -H "Authorization: Bearer $access_token" | \
+  echo "$(curl -G -s $BASE_URL/athlete/activities -H "Authorization: Bearer $access_token" -d page=$page | \
     jq -r "$jq_filter")"
 }
 
