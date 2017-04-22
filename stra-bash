@@ -31,7 +31,7 @@ get_activities() {
 
 max_name_length() {
   local activities=$1 
-  echo "$activities" | awk '
+  echo "$activities" | gawk '
 BEGIN { FS = "\t" }
 { 
   name = $3 
@@ -44,7 +44,7 @@ END { print max }
 format_activities() {
   local actitivies=$1
   local name_width=$2
-  echo "$activities" | awk -v name_width=$name_width '
+  echo "$activities" | gawk -v name_width=$name_width '
 BEGIN { 
   FS = "\t" 
 
