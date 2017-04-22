@@ -24,8 +24,7 @@ parse_args() {
 
 get_activities() {
   local access_token=$(< .access-token)
-  local jq_filter='.[] | [.id, .start_date_local, .name, .distance] | map(tostring) | @tsv'
-
+  local jq_filter='.[] | [.id, .start_date_local, .name, .distance, .gear_id] | map(tostring) | @tsv'
   echo "$(curl -G -s $BASE_URL/athlete/activities -H "Authorization: Bearer $access_token" -d page=$page | \
     jq -r "$jq_filter")"
 }
@@ -52,6 +51,7 @@ BEGIN {
   id_width = 9
   start_date_width = 19
   distance_width = 6
+  gear_id_width = 8
 
   print_header()
 }
@@ -60,12 +60,13 @@ BEGIN {
   start_date = format_date($2)
   name = $3
   distance_km = to_km($4)
-  
-  printf "%s %s %-*s %*.2f\n", id, start_date, name_width, name, distance_width, distance_km
+  gear_id = $5
+
+  printf "%s %s %-*s %*.2f %s\n", id, start_date, name_width, name, distance_width, distance_km, gear_id
 }
 
 function print_header() {
-  printf "%-*s %-*s %-*s %-*s\n", id_width, "id", start_date_width, "start date", name_width, "name", distance_width, "km"
+  printf "%-*s %-*s %-*s %-*s %-*s\n", id_width, "id", start_date_width, "start date", name_width, "name", distance_width, "km", gear_id_width, "gear id"
   repeat("-", id_width)
   printf " "
   repeat("-", start_date_width)
@@ -73,7 +74,9 @@ function print_header() {
   repeat("-", name_width)
   printf " "
   repeat("-", distance_width)
-  printf "\n" 
+  printf " "
+  repeat("-", gear_id_width)
+  printf "\n"
 }
 
 function repeat(str, times) {
