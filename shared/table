@@ -1,41 +1,18 @@
 #!/bin/bash
 
-BASE_URL=https://www.strava.com/api/v3
-
-page=1
-
-main() {
-  parse_args $*
-
-  local activities=$(list)
+table() {
+  local activities=$(< /dev/stdin)
   local name_width=$(max_name_length "$activities")
   format_activities "$activities" $name_width
 }
 
-parse_args() {
-  while getopts ":p:" opt; do
-    case $opt in
-      p) page="$OPTARG" ;;
-      \?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
-      :) echo "Option -$OPTARG requires an argument" >&2; exit 1 ;;
-    esac
-  done
-}
-
-list() {
-  local access_token=$(< .access-token)
-  local jq_filter='.[] | [.id, .start_date_local, .name, .distance, .gear_id, .private] | map(tostring) | @tsv'
-  echo "$(curl -G -s $BASE_URL/athlete/activities -H "Authorization: Bearer $access_token" -d page=$page | \
-    jq -r "$jq_filter")"
-}
-
 max_name_length() {
-  local activities=$1 
+  local activities=$1
   echo "$activities" | gawk '
 BEGIN { FS = "\t" }
-{ 
-  name = $3 
-  if (length(name) > max) { max = length(name) } 
+{
+  name = $3
+  if (length(name) > max) { max = length(name) }
 }
 END { print max }
 '
@@ -45,8 +22,8 @@ format_activities() {
   local actitivies=$1
   local name_width=$2
   echo "$activities" | gawk -v name_width=$name_width '
-BEGIN { 
-  FS = "\t" 
+BEGIN {
+  FS = "\t"
 
   id_width = 9
   start_date_width = 19
@@ -56,7 +33,7 @@ BEGIN {
 
   print_header()
 }
-{ 
+{
   id = $1
   start_date = format_date($2)
   name = $3
@@ -96,12 +73,12 @@ function print_header() {
 }
 
 function repeat(str, times) {
-  for (i = 0; i < times; i++) printf str 
+  for (i = 0; i < times; i++) printf str
 }
 
 function format_date(date) {
   sub(/T/, " ", date)
-  sub(/Z/, "", date) 
+  sub(/Z/, "", date)
   return date
 }
 
@@ -110,6 +87,3 @@ function to_km(distance) {
 }
 '
 }
-
-main $*
-

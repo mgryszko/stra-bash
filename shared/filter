@@ -1,0 +1,7 @@
+#!/bin/bash
+
+filter() {
+  local jq_filter='[.id, .start_date_local, .name, .distance, .gear_id, .private] | map(tostring) | @tsv'
+  jq -r "$jq_filter"
+}
+

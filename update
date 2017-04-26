@@ -1,0 +1,33 @@
+#!/bin/bash
+
+BASE_URL=https://www.strava.com/api/v3
+
+source "$(dirname "$BASH_SOURCE")/shared/filter"
+source "$(dirname "$BASH_SOURCE")/shared/table"
+
+main() {
+  parse_args $*
+
+  update | filter | table
+}
+
+parse_args() {
+  while getopts ":n:" opt; do
+    case $opt in
+      n) name="$OPTARG" ;;
+      \?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
+      :) echo "Option -$OPTARG requires an argument" >&2; exit 1 ;;
+    esac
+
+    shift $((OPTIND -1))
+    activity_id=$1
+  done
+}
+
+update() {
+  local access_token=$(< .access-token)
+  echo "$(curl -X PUT -s $BASE_URL/activities/$activity_id -H "Authorization: Bearer $access_token" -F name=$name)"
+}
+
+main $*
+
