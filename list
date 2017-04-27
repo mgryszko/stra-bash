@@ -1,9 +1,8 @@
 #!/bin/bash
 
 source "$(dirname "$BASH_SOURCE")/shared/filter"
+source "$(dirname "$BASH_SOURCE")/shared/request"
 source "$(dirname "$BASH_SOURCE")/shared/table"
-
-BASE_URL=https://www.strava.com/api/v3
 
 page=1
 
@@ -24,8 +23,7 @@ parse_args() {
 }
 
 list() {
-  local access_token=$(< .access-token)
-  curl -G -s $BASE_URL/athlete/activities -H "Authorization: Bearer $access_token" -d page=$page
+  request "/athlete/activities" "-G -d page=$page"
 }
 
 main $*

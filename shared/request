@@ -1,0 +1,10 @@
+#!/bin/bash
+
+request() {
+  local base_url="https://www.strava.com/api/v3"
+  local path="$1"
+  local options="$2"
+  local access_token=$(< .access-token)
+
+  curl -s $base_url$path -H "Authorization: Bearer $access_token" $options
+}
