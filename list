@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "$(dirname "$BASH_SOURCE")/shared/filter"
+source "$(dirname "$BASH_SOURCE")/shared/table"
 
 BASE_URL=https://www.strava.com/api/v3
 
@@ -9,9 +10,7 @@ page=1
 main() {
   parse_args $*
 
-  local activities=$(list | filter_many)
-  local name_width=$(max_name_length "$activities")
-  format_activities "$activities" $name_width
+  list | filter_many | table
 }
 
 parse_args() {
@@ -27,88 +26,6 @@ parse_args() {
 list() {
   local access_token=$(< .access-token)
   curl -G -s $BASE_URL/athlete/activities -H "Authorization: Bearer $access_token" -d page=$page
-}
-
-max_name_length() {
-  local activities=$1 
-  echo "$activities" | gawk '
-BEGIN { FS = "\t" }
-{ 
-  name = $3 
-  if (length(name) > max) { max = length(name) } 
-}
-END { print max }
-'
-}
-
-format_activities() {
-  local actitivies=$1
-  local name_width=$2
-  echo "$activities" | gawk -v name_width=$name_width '
-BEGIN { 
-  FS = "\t" 
-
-  id_width = 9
-  start_date_width = 19
-  distance_width = 6
-  gear_id_width = 8
-  private_width = 1
-
-  print_header()
-}
-{ 
-  id = $1
-  start_date = format_date($2)
-  name = $3
-  distance_km = to_km($4)
-  gear_id = $5
-  private = ($6 == "true" ? "+" : " ")
-
-  printf "%s %s %-*s %*.2f %s %s\n", id, start_date, name_width, name, distance_width, distance_km, gear_id, private
-}
-
-function print_header() {
-  printf "%-*s", id_width, "id"
-  printf " "
-  printf "%-*s", start_date_width, "start date"
-  printf " "
-  printf "%-*s", name_width, "name"
-  printf " "
-  printf "%-*s", distance_width, "km"
-  printf " "
-  printf "%-*s", gear_id_width, "gear id"
-  printf " "
-  printf "%-*s", private_width, "©"
-  printf "\n"
-
-  repeat("-", id_width)
-  printf " "
-  repeat("-", start_date_width)
-  printf " "
-  repeat("-", name_width)
-  printf " "
-  repeat("-", distance_width)
-  printf " "
-  repeat("-", gear_id_width)
-  printf " "
-  repeat("-", private_width)
-  printf "\n"
-}
-
-function repeat(str, times) {
-  for (i = 0; i < times; i++) printf str 
-}
-
-function format_date(date) {
-  sub(/T/, " ", date)
-  sub(/Z/, "", date) 
-  return date
-}
-
-function to_km(distance) {
-  return distance / 1000
-}
-'
 }
 
 main $*
