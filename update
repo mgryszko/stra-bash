@@ -1,9 +1,9 @@
 #!/bin/bash
 
-BASE_URL=https://www.strava.com/api/v3
-
 source "$(dirname "$BASH_SOURCE")/shared/filter"
 source "$(dirname "$BASH_SOURCE")/shared/table"
+
+BASE_URL=https://www.strava.com/api/v3
 
 main() {
   parse_args $*
