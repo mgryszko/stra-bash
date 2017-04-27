@@ -8,7 +8,7 @@ BASE_URL=https://www.strava.com/api/v3
 main() {
   parse_args $*
 
-  update | filter | table
+  update | filter_one | table
 }
 
 parse_args() {
@@ -26,7 +26,7 @@ parse_args() {
 
 update() {
   local access_token=$(< .access-token)
-  echo "$(curl -X PUT -s $BASE_URL/activities/$activity_id -H "Authorization: Bearer $access_token" -F name=$name)"
+  curl -X PUT -s $BASE_URL/activities/$activity_id -H "Authorization: Bearer $access_token" -F name=$name
 }
 
 main $*
