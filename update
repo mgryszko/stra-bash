@@ -11,10 +11,11 @@ main() {
 }
 
 parse_args() {
-  while getopts ":n:g:" opt; do
+  while getopts ":n:g:p:" opt; do
     case $opt in
       n) name="$OPTARG" ;;
       g) gear_id="$OPTARG" ;;
+      p) private="$OPTARG" ;;
       \?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
       :) echo "Option -$OPTARG requires an argument" >&2; exit 1 ;;
     esac
@@ -28,6 +29,7 @@ update() {
   local options=("-X PUT")
   if [[ -n "$name" ]]; then options+=("-F name=$name"); fi
   if [[ -n "$gear_id" ]]; then options+=("-F gear_id=$gear_id"); fi
+  if [[ -n "$private" ]]; then options+=("-F private=$private"); fi
 
   request "/activities/$activity_id" "${options[*]}"
 }
