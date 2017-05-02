@@ -41,7 +41,18 @@ BEGIN {
   gear_id = $5
   private = ($6 == "true" ? "+" : " ")
 
-  printf "%s %s %-*s %*.2f %s %s\n", id, start_date, name_width, name, distance_width, distance_km, gear_id, private
+  printf "%s", id
+  printf " "
+  printf "%s", start_date
+  printf " "
+  printf "%-*s", name_width, name
+  printf " "
+  printf "%*.2f", distance_width, distance_km
+  printf " "
+  printf "%-*s", gear_id_width, gear_id
+  printf " "
+  printf "%s", private
+  printf "\n"
 }
 
 function print_header() {
