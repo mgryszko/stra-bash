@@ -55,7 +55,7 @@ function print_header() {
   printf " "
   printf "%-*s", gear_id_width, "gear id"
   printf " "
-  printf "%-*s", private_width, "©"
+  printf "%-*s", private_width, "p"
   printf "\n"
 
   repeat("-", id_width)
