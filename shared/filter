@@ -6,7 +6,12 @@ filter_one() {
 }
 
 filter_many() {
-  local jq_filter='.[] | [.id, .start_date_local, .name, .distance, .gear_id, .private] | map(tostring) | @tsv'
-  jq -r "$jq_filter"
+  local gear=${1:-'{}'}
+  local jq_filter='.[] | [.id, .start_date_local, .name, .distance, .gear_id, if .gear_id != null then $gear[.gear_id] else "none" end, .private] | map(tostring) | @tsv'
+  jq -r --argjson gear $gear "$jq_filter"
 }
 
+filter_gear() {
+  local jq_filter='[.bikes | .[] | {(.id): .name}] | add'
+  jq -rc "$jq_filter"
+}

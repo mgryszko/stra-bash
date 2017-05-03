@@ -1,0 +1,9 @@
+#!/bin/bash
+
+source "$(dirname "$BASH_SOURCE")/filter"
+source "$(dirname "$BASH_SOURCE")/request"
+
+list_gear() {
+  request "/athlete" | filter_gear
+}
+

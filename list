@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source "$(dirname "$BASH_SOURCE")/shared/filter"
+source "$(dirname "$BASH_SOURCE")/shared/gear"
 source "$(dirname "$BASH_SOURCE")/shared/request"
 source "$(dirname "$BASH_SOURCE")/shared/table"
 
@@ -9,7 +10,8 @@ page=1
 main() {
   parse_args $*
 
-  list | filter_many | table
+  local gear=$(list_gear)
+  list | filter_many $gear | table
 }
 
 parse_args() {

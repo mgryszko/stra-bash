@@ -2,33 +2,41 @@
 
 table() {
   local activities=$(< /dev/stdin)
-  local name_width=$(max_name_length "$activities")
-  format_activities "$activities" $name_width
+  local widths=$(max_lengths "$activities")
+  format_activities "$activities" "$widths"
 }
 
-max_name_length() {
+max_lengths() {
   local activities=$1
   echo "$activities" | gawk '
 BEGIN { FS = "\t" }
 {
-  name = $3
-  if (length(name) > max) { max = length(name) }
+  for (i = 1; i <= NF; i++) {
+    max[i] = (length($i) > max[i] ? length($i) : max[i])
+  }
 }
-END { print max }
+END {
+  for (i = 1; i <= NF; i++) {
+    printf "%d%s", max[i], (i == NF ? RS : FS)
+  }
+}
 '
 }
 
 format_activities() {
   local actitivies=$1
-  local name_width=$2
-  echo "$activities" | gawk -v name_width=$name_width '
+  local widths=$2
+  echo "$activities" | gawk -v widths="$widths" '
 BEGIN {
   FS = "\t"
 
-  id_width = 9
+  split(widths, col_widths, FS)
+  id_width = col_widths[1]
   start_date_width = 19
-  distance_width = 6
-  gear_id_width = 8
+  name_width = col_widths[3]
+  distance_width = col_widths[4]
+  gear_id_width = col_widths[5]
+  gear_name_width = col_widths[6] > 9 ? col_widths[6] : 9
   private_width = 1
 
   print_header()
@@ -39,7 +47,8 @@ BEGIN {
   name = $3
   distance_km = to_km($4)
   gear_id = $5
-  private = ($6 == "true" ? "+" : " ")
+  gear_name = $6
+  private = ($7 == "true" ? "+" : " ")
 
   printf "%s", id
   printf " "
@@ -47,9 +56,11 @@ BEGIN {
   printf " "
   printf "%-*s", name_width, name
   printf " "
-  printf "%*.2f", distance_width, distance_km
+  printf "%*.l3f", distance_width, distance_km
   printf " "
   printf "%-*s", gear_id_width, gear_id
+  printf " "
+  printf "%-*s", gear_name_width, gear_name
   printf " "
   printf "%s", private
   printf "\n"
@@ -66,6 +77,8 @@ function print_header() {
   printf " "
   printf "%-*s", gear_id_width, "gear id"
   printf " "
+  printf "%-*s", gear_name_width, "gear name"
+  printf " "
   printf "%-*s", private_width, "p"
   printf "\n"
 
@@ -78,6 +91,8 @@ function print_header() {
   repeat("-", distance_width)
   printf " "
   repeat("-", gear_id_width)
+  printf " "
+  repeat("-", gear_name_width)
   printf " "
   repeat("-", private_width)
   printf "\n"
