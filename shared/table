@@ -35,8 +35,8 @@ BEGIN {
   start_date_width = 19
   name_width = col_widths[3]
   distance_width = col_widths[4]
-  gear_id_width = col_widths[5]
-  gear_name_width = col_widths[6] > 9 ? col_widths[6] : 9
+  gear_id_width = max(col_widths[5], 7)
+  gear_name_width = max(col_widths[6], 9)
   private_width = 1
 
   print_header()
@@ -100,6 +100,10 @@ function print_header() {
 
 function repeat(str, times) {
   for (i = 0; i < times; i++) printf str
+}
+
+function max(a, b) {
+  return a > b ? a : b
 }
 
 function format_date(date) {
