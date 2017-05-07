@@ -1,13 +1,15 @@
 #!/bin/bash
 
 source "$(dirname "$BASH_SOURCE")/shared/filter"
+source "$(dirname "$BASH_SOURCE")/shared/gear"
 source "$(dirname "$BASH_SOURCE")/shared/request"
 source "$(dirname "$BASH_SOURCE")/shared/table"
 
 main() {
   parse_args $*
 
-  update | filter_one | table
+  local gear=$(list_gear)
+  update | filter_one $gear | table
 }
 
 parse_args() {

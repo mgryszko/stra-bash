@@ -1,14 +1,21 @@
 #!/bin/bash
 
+FILTER_ONE='[.id, .start_date_local, .name, .distance, .gear_id, if .gear_id != null then $gear[.gear_id] else "none" end, .private] | map(tostring) | @tsv'
+
 filter_one() {
-  local jq_filter='[.id, .start_date_local, .name, .distance, .gear_id, .private] | map(tostring) | @tsv'
-  jq -r "$jq_filter"
+  local gear=$1
+  filter_activity "$gear" "$FILTER_ONE"
 }
 
 filter_many() {
+  local gear=$1
+  filter_activity "$gear" ".[] | $FILTER_ONE"
+}
+
+filter_activity() {
   local gear=${1:-'{}'}
-  local jq_filter='.[] | [.id, .start_date_local, .name, .distance, .gear_id, if .gear_id != null then $gear[.gear_id] else "none" end, .private] | map(tostring) | @tsv'
-  jq -r --argjson gear $gear "$jq_filter"
+  local filter=$2
+  jq -r --argjson gear "$gear" "$filter"
 }
 
 filter_gear() {
