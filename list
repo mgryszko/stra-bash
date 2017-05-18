@@ -11,7 +11,7 @@ main() {
   parse_args $*
 
   local gear=$(list_gear)
-  list | filter_many $gear | table
+  list | filter_activity $gear | table
 }
 
 parse_args() {

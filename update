@@ -9,7 +9,7 @@ main() {
   parse_args $*
 
   local gear=$(list_gear)
-  update | filter_one $gear | table
+  update | filter_activity $gear | table
 }
 
 parse_args() {
@@ -24,7 +24,7 @@ parse_args() {
   done
 
   shift $((OPTIND -1))
-  activity_id=$1
+  activity_ids=$*
 }
 
 update() {
@@ -33,7 +33,18 @@ update() {
   if [[ -n "$gear_id" ]]; then options+=("-F gear_id=$gear_id"); fi
   if [[ -n "$private" ]]; then options+=("-F private=$private"); fi
 
-  request "/activities/$activity_id" "${options[*]}"
+  local updated=()
+  for activity_id in $activity_ids; do
+    updated+=($(request "/activities/$activity_id" "${options[*]}"))
+  done
+  # TODO names with spaces are joined with !
+  echo "[" $(join_by , "${updated[@]}") "]"
+}
+
+join_by() {
+  local IFS="$1"
+  shift
+  echo "$*"
 }
 
 main $*
