@@ -13,9 +13,10 @@ main() {
 }
 
 parse_args() {
-  while getopts ":n:g:p:" opt; do
+  while getopts ":n:t:g:p:" opt; do
     case $opt in
       n) name="$OPTARG" ;;
+      t) type="$OPTARG" ;;
       g) gear_id="$OPTARG" ;;
       p) private="$OPTARG" ;;
       \?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
@@ -30,6 +31,7 @@ parse_args() {
 update() {
   local options=("-X PUT")
   if [[ -n "$name" ]]; then options+=("-F name=$name"); fi
+  if [[ -n "$type" ]]; then options+=("-F type=$type"); fi
   if [[ -n "$gear_id" ]]; then options+=("-F gear_id=$gear_id"); fi
   if [[ -n "$private" ]]; then options+=("-F private=$private"); fi
 

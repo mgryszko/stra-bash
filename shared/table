@@ -33,10 +33,11 @@ BEGIN {
   split(widths, col_widths, FS)
   id_width = col_widths[1]
   start_date_width = 19
-  name_width = col_widths[3]
-  distance_width = col_widths[4]
-  gear_id_width = max(col_widths[5], 7)
-  gear_name_width = max(col_widths[6], 9)
+  type_width = col_widths[3]
+  name_width = col_widths[4]
+  distance_width = col_widths[5]
+  gear_id_width = max(col_widths[6], 7)
+  gear_name_width = max(col_widths[7], 9)
   private_width = 1
 
   print_header()
@@ -44,15 +45,18 @@ BEGIN {
 {
   id = $1
   start_date = format_date($2)
-  name = $3
-  distance_km = to_km($4)
-  gear_id = $5
-  gear_name = $6
-  private = ($7 == "true" ? "+" : " ")
+  type = $3
+  name = $4
+  distance_km = to_km($5)
+  gear_id = $6
+  gear_name = $7
+  private = ($8 == "true" ? "+" : " ")
 
   printf "%s", id
   printf " "
   printf "%s", start_date
+  printf " "
+  printf "%-*s", type_width, type
   printf " "
   printf "%-*s", name_width, name
   printf " "
@@ -71,6 +75,8 @@ function print_header() {
   printf " "
   printf "%-*s", start_date_width, "start date"
   printf " "
+  printf "%-*s", type_width, "type"
+  printf " "
   printf "%-*s", name_width, "name"
   printf " "
   printf "%-*s", distance_width, "km"
@@ -85,6 +91,8 @@ function print_header() {
   repeat("-", id_width)
   printf " "
   repeat("-", start_date_width)
+  printf " "
+  repeat("-", type_width)
   printf " "
   repeat("-", name_width)
   printf " "

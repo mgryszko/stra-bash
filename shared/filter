@@ -2,7 +2,7 @@
 
 filter_activity() {
   local gear=${1:-'{}'}
-  local filter='.[] | [.id, .start_date_local, .name, .distance, .gear_id, if .gear_id != null then $gear[.gear_id] else "none" end, .private] | map(tostring) | @tsv'
+  local filter='.[] | [.id, .start_date_local, .type, .name, .distance, .gear_id, if .gear_id != null then $gear[.gear_id] else "none" end, .private] | map(tostring) | @tsv'
   jq -r --argjson gear "$gear" "$filter"
 }
 
