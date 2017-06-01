@@ -52,7 +52,7 @@ BEGIN {
   gear_name = $7
   private = ($8 == "true" ? "+" : " ")
 
-  printf "%s", id
+  printf "%*s", id_width, id
   printf " "
   printf "%s", start_date
   printf " "
