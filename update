@@ -6,7 +6,7 @@ source "$(dirname "$BASH_SOURCE")/shared/request"
 source "$(dirname "$BASH_SOURCE")/shared/table"
 
 main() {
-  parse_args $*
+  parse_args "$@"
 
   local gear=$(list_gear)
   update | filter_activity $gear | table
@@ -30,10 +30,10 @@ parse_args() {
 
 update() {
   local options=("-X PUT")
-  if [[ -n "$name" ]]; then options+=("-F name=$name"); fi
-  if [[ -n "$type" ]]; then options+=("-F type=$type"); fi
-  if [[ -n "$gear_id" ]]; then options+=("-F gear_id=$gear_id"); fi
-  if [[ -n "$private" ]]; then options+=("-F private=$private"); fi
+  if [[ -n "$name" ]]; then options+=("--data-urlencode \"name=$name\""); fi
+  if [[ -n "$type" ]]; then options+=("-d type=$type"); fi
+  if [[ -n "$gear_id" ]]; then options+=("-d gear_id=$gear_id"); fi
+  if [[ -n "$private" ]]; then options+=("-d private=$private"); fi
 
   local updated=()
   for activity_id in $activity_ids; do
@@ -48,5 +48,5 @@ join_by() {
   echo "$*"
 }
 
-main $*
+main "$@"
 

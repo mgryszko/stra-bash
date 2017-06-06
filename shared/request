@@ -6,5 +6,7 @@ request() {
   local options="$2"
   local access_token=$(< .access-token)
 
-  curl -s $base_url$path -H "Authorization: Bearer $access_token" $options
+  # Without eval curl doesn't interpret double qoutes as quotation of the name-value pair.
+  # It sends double quotes as part of the form parameter name.
+  eval "curl -s $base_url$path -H \"Authorization: Bearer $access_token\" $options"
 }
