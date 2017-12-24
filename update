@@ -37,9 +37,16 @@ update() {
 
   local updated=()
   for activity_id in $activity_ids; do
+    read current_private <<<$(get_default_flags ${activity_id})
+    if [[ -z "$private" ]]; then options+=("-d private=$current_private"); fi
     updated+=("$(request "/activities/$activity_id" "${options[*]}")")
   done
   echo "[" $(join_by , "${updated[@]}") "]"
+}
+
+get_default_flags() {
+  local activity_id=$1
+  request "/activities/$activity_id -X GET" | jq -r '"\(.private)"'
 }
 
 join_by() {
