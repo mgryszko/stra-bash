@@ -11,12 +11,12 @@ main() {
   parse_args $*
 
   local gear=$(list_gear)
-  list | filter_activity $gear | table
+  list | filter_activity ${gear} | table
 }
 
 parse_args() {
   while getopts ":p:" opt; do
-    case $opt in
+    case ${opt} in
       p) page="$OPTARG" ;;
       \?) echo "Invalid option: -$OPTARG" >&2; exit 1 ;;
       :) echo "Option -$OPTARG requires an argument" >&2; exit 1 ;;

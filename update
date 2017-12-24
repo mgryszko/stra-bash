@@ -9,12 +9,12 @@ main() {
   parse_args "$@"
 
   local gear=$(list_gear)
-  update | filter_activity $gear | table
+  update | filter_activity ${gear} | table
 }
 
 parse_args() {
   while getopts ":n:t:g:p:" opt; do
-    case $opt in
+    case ${opt} in
       n) name="$OPTARG" ;;
       t) type="$OPTARG" ;;
       g) gear_id="$OPTARG" ;;
@@ -36,7 +36,7 @@ update() {
   if [[ -n "$private" ]]; then options+=("-d private=$private"); fi
 
   local updated=()
-  for activity_id in $activity_ids; do
+  for activity_id in ${activity_ids}; do
     read current_private <<<$(get_default_flags ${activity_id})
     if [[ -z "$private" ]]; then options+=("-d private=$current_private"); fi
     updated+=("$(request "/activities/$activity_id" "${options[*]}")")
