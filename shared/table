@@ -32,7 +32,7 @@ BEGIN {
 
   split(widths, col_widths, FS)
   id_width = col_widths[1]
-  start_date_width = 19
+  start_date_width = 16
   type_width = col_widths[3]
   name_width = col_widths[4]
   distance_width = col_widths[5]
@@ -117,6 +117,7 @@ function max(a, b) {
 function format_date(date) {
   sub(/T/, " ", date)
   sub(/Z/, "", date)
+  sub(/:[0-9]{2}$/, "", date)
   return date
 }
 
